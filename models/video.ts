@@ -1,4 +1,5 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
+import { models } from "mongoose";
 
 export const VIDEO_DIMENESIONS = {
     height : 1920,
@@ -36,3 +37,7 @@ const videoSchema = new Schema<IVideo>({
 }, {
     timestamps : true
 })
+
+const Video = models?.Video || model<IVideo>("Video", videoSchema)
+
+export default Video

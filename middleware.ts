@@ -20,10 +20,13 @@ export default withAuth(
                     return true
                 }
                 //public
-                if (pathname === '/' || pathname.startsWith('/api/videos')) {
-                    return true
-                    
-                }
+               // Allow public video API if you want
+if (pathname.startsWith("/api/videos")) {
+    return true;
+}
+
+// Everything else requires authentication
+return !!token;
                 return !!token
             }
         }
