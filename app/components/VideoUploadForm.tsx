@@ -123,11 +123,13 @@ export default function VideoUploadForm() {
           <span className="label-text">Upload Video</span>
         </label>
 
-        <FileUpload
-          fileType="video"
-          onSuccess={handleUploadSuccess}
-          onProgress={handleUploadProgress}
-        />
+      <FileUpload
+  fileType="video"
+  onSuccess={handleUploadSuccess}
+  onProgress={handleUploadProgress}
+  
+/>
+
 
         {uploadProgress > 0 && (
           <progress

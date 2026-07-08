@@ -4,6 +4,7 @@ import "./globals.css";
 import { NotificationProvider } from "./components/Notification";
 
 import Provider from "./components/Providers";
+import { Providers } from "./components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,15 +29,18 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+    suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <Provider>
           <main className="container mx-auto px-4 py-8">
+          <Providers>
+           
           <NotificationProvider>
-
             {children}
           </NotificationProvider>
+           </Providers>    
             </main></Provider>
       </body>
     </html>
