@@ -42,6 +42,22 @@ class ApiClient {
     return response.json();
   }
 
+  async addComment(videoId: string, text: string) {
+  return this.myFetch<{
+    comment: {
+      userId: string;
+      text: string;
+      createdAt: Date;
+    };
+    commentsCount: number;
+  }>(`/videos/${videoId}/comments`, {
+    method: "POST",
+    body: {
+      text,
+    },
+  });
+}
+
   async toggleLike(videoId: string) {
   return this.myFetch<{
     liked: boolean;

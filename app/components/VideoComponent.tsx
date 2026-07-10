@@ -1,13 +1,26 @@
 'use client'
 import { Video } from "@imagekit/next";
 import Link from "next/link";
-import { IVideo } from "@/models/video";
-import { Heart, MessageCircle, Share2, User } from "lucide-react";
+import { IVideo , IComment } from "@/models/video";
+import { Heart, MessageCircle, Send, Share2, User } from "lucide-react";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { apiClient } from "@/lib/api-client";
 
 export default function VideoComponent({ video }: { video: IVideo }) {
+
+const [shareMessage, setShareMessage] = useState("");
+
+const [comments, setComments] = useState<IComment[]>(
+  video.comments ?? []
+);
+
+const [commentText, setCommentText] = useState("");
+
+const [showComments, setShowComments] = useState(false);
+
+const [isCommenting, setIsCommenting] = useState(false);
+
   const { data: session } = useSession();
 
   const [likes, setLikes] = useState<string[]>(
@@ -45,6 +58,67 @@ export default function VideoComponent({ video }: { video: IVideo }) {
     alert("Failed to update like.");
   } finally {
     setIsLiking(false);
+  }
+};
+
+const handleComment = async () => {
+  if (!video._id) return;
+
+  if (!userId) {
+    alert("Please login to comment on this reel.");
+    return;
+  }
+
+  if (!commentText.trim()) {
+    return;
+  }
+
+  if (isCommenting) return;
+
+  try {
+    setIsCommenting(true);
+
+    const response = await apiClient.addComment(
+      video._id.toString(),
+      commentText
+    );
+
+    setComments((previousComments) => [
+      ...previousComments,
+      response.comment,
+    ]);
+
+    setCommentText("");
+  } catch (error) {
+    console.error("Failed to add comment:", error);
+    alert("Failed to add comment.");
+  } finally {
+    setIsCommenting(false);
+  }
+};
+const handleShare = async () => {
+  if (!video._id) return;
+
+  const shareUrl = `${window.location.origin}/videos/${video._id}`;
+
+  try {
+    if (navigator.share) {
+      await navigator.share({
+        title: video.title,
+        text: video.description,
+        url: shareUrl,
+      });
+    } else {
+      await navigator.clipboard.writeText(shareUrl);
+
+      setShareMessage("Link copied!");
+
+      setTimeout(() => {
+        setShareMessage("");
+      }, 2000);
+    }
+  } catch (error) {
+    console.error("Failed to share reel:", error);
   }
 };
 
@@ -156,36 +230,131 @@ export default function VideoComponent({ video }: { video: IVideo }) {
 </button>
 
         <button
-          type="button"
-          className="
-            flex items-center gap-2
-            text-slate-600
-            transition
-            hover:text-indigo-500
-            dark:text-slate-300
-            dark:hover:text-indigo-400
-          "
-        >
-          <MessageCircle size={22} />
-          <span className="text-sm font-medium">Comment</span>
-        </button>
+  type="button"
+  onClick={() => setShowComments((previous) => !previous)}
+  className="
+    flex items-center gap-2
+    text-slate-600
+    transition
+    hover:text-indigo-500
+    dark:text-slate-300
+    dark:hover:text-indigo-400
+  "
+>
+  <MessageCircle size={22} />
 
-        <button
-          type="button"
-          className="
-            ml-auto
-            flex items-center gap-2
-            text-slate-600
-            transition
-            hover:text-indigo-500
-            dark:text-slate-300
-            dark:hover:text-indigo-400
-          "
-        >
-          <Share2 size={22} />
-          <span className="text-sm font-medium">Share</span>
-        </button>
+  <span className="text-sm font-medium">
+    {comments.length}
+  </span>
+</button>
+
+      <button
+  type="button"
+  onClick={handleShare}
+  className="
+    ml-auto
+    flex items-center gap-2
+    text-slate-600
+    transition
+    hover:text-indigo-500
+    dark:text-slate-300
+    dark:hover:text-indigo-400
+  "
+>
+  <Share2 size={22} />
+
+  <span className="text-sm font-medium">
+    {shareMessage || "Share"}
+  </span>
+</button>
       </div>
+
+      {showComments && (
+  <div className="border-b border-gray-200 p-4 dark:border-slate-700">
+    {/* Existing comments */}
+    <div className="mb-4 max-h-48 space-y-3 overflow-y-auto">
+      {comments.length === 0 ? (
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          No comments yet. Be the first to comment!
+        </p>
+      ) : (
+        comments.map((comment, index) => (
+          <div
+            key={`${comment.userId}-${index}`}
+            className="rounded-xl bg-gray-100 p-3 dark:bg-slate-800"
+          >
+            <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+              ReelsPro User
+            </p>
+
+            <p className="mt-1 text-sm text-slate-800 dark:text-slate-200">
+              {comment.text}
+            </p>
+          </div>
+        ))
+      )}
+    </div>
+
+    {/* Add comment */}
+    <div className="flex items-center gap-2">
+      <input
+        type="text"
+        value={commentText}
+        onChange={(event) => setCommentText(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            handleComment();
+          }
+        }}
+        placeholder="Write a comment..."
+        className="
+          min-w-0
+          flex-1
+          rounded-xl
+          border
+          border-gray-300
+          bg-white
+          px-4
+          py-2
+          text-sm
+          text-slate-900
+          outline-none
+          transition
+          focus:border-indigo-500
+          focus:ring-2
+          focus:ring-indigo-500/20
+          dark:border-slate-600
+          dark:bg-slate-800
+          dark:text-white
+          dark:placeholder:text-slate-400
+        "
+      />
+
+      <button
+        type="button"
+        onClick={handleComment}
+        disabled={!commentText.trim() || isCommenting}
+        className="
+          flex
+          h-10
+          w-10
+          shrink-0
+          items-center
+          justify-center
+          rounded-xl
+          bg-indigo-600
+          text-white
+          transition
+          hover:bg-indigo-700
+          disabled:cursor-not-allowed
+          disabled:opacity-50
+        "
+      >
+        <Send size={18} />
+      </button>
+    </div>
+  </div>
+)}
 
       {/* Caption */}
       <div className="p-4">

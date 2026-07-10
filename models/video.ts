@@ -6,6 +6,12 @@ export const VIDEO_DIMENESIONS = {
     width : 1080
 } as const
 
+export interface IComment {
+  userId: string;
+  text: string;
+  createdAt: Date;
+}
+
 export interface IVideo {
     _id? : mongoose.Types.ObjectId;
     title : string;
@@ -15,7 +21,7 @@ export interface IVideo {
     controls? : boolean
 
       likes?: string[];
-
+          comments?: IComment[];
 
     transformations? : {
         height : number,
@@ -26,6 +32,29 @@ export interface IVideo {
     updatedAt : Date
 }
 
+const commentSchema = new Schema<IComment>(
+  {
+    userId: {
+      type: String,
+      required: true,
+    },
+
+    text: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+  },
+  {
+    _id: true,
+  }
+);
+
 const videoSchema = new Schema<IVideo>({
     title : {type : String , required : true},
     description : {type : String , required : true},
@@ -34,6 +63,10 @@ const videoSchema = new Schema<IVideo>({
     controls : {type : Boolean , default : true},
     likes: {
   type: [String],
+  default: [],
+},
+comments: {
+  type: [commentSchema],
   default: [],
 },
     transformations : {
