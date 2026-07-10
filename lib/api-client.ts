@@ -8,7 +8,7 @@ export interface VideoFormData {
 }
 
 type FetchOptions = {
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" |"DELETE";
   body?: any;
   headers?: Record<string, string>;
 };
@@ -41,6 +41,16 @@ class ApiClient {
 
     return response.json();
   }
+
+  async toggleLike(videoId: string) {
+  return this.myFetch<{
+    liked: boolean;
+    likesCount: number;
+    likes: string[];
+  }>(`/videos/${videoId}/like`, {
+    method: "PATCH",
+  });
+}
 
   async getVideos() {
     return this.myFetch<IVideo[]>("/videos");
