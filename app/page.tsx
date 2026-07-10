@@ -49,7 +49,9 @@ return (
 
       {/* Upload Card */}
       <div className="flex justify-center mb-16">
-        <UploadSection />
+        <UploadSection 
+        onVideoPublished={fetchVideos}
+        />
       </div>
 
       {/* Feed */}

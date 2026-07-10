@@ -6,17 +6,33 @@ interface VideoFeedProps {
 }
 
 export default function VideoFeed({ videos }: VideoFeedProps) {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {videos.map((video) => (
-        <VideoComponent key={video._id?.toString()} video={video} />
-      ))}
+  if (videos.length === 0) {
+    return (
+      <div className="py-16 text-center">
+        <p className="text-lg text-slate-600 dark:text-slate-400">
+          No reels yet. Be the first to post one! 🎬
+        </p>
+      </div>
+    );
+  }
 
-      {videos.length === 0 && (
-        <div className="col-span-full text-center py-12">
-          <p className="text-base-content/70">No videos found</p>
-        </div>
-      )}
+  return (
+    <div
+      className="
+        grid
+        grid-cols-1
+        gap-8
+
+        sm:grid-cols-2
+        lg:grid-cols-3
+      "
+    >
+      {videos.map((video) => (
+        <VideoComponent
+          key={video._id?.toString()}
+          video={video}
+        />
+      ))}
     </div>
   );
 }

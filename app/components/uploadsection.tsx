@@ -13,7 +13,7 @@ export default function UploadSection({onVideoPublished,} : UploadSectionProps) 
   const [videoUrl, setVideoUrl] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
 
-    const handlePublish = async () => {
+const handlePublish = async () => {
   if (!caption.trim()) {
     alert("Please enter a caption.");
     return;
@@ -25,25 +25,30 @@ export default function UploadSection({onVideoPublished,} : UploadSectionProps) 
   }
 
   try {
-    await apiClient.createVideo({
+    const newVideo = await apiClient.createVideo({
       title: caption,
       description: caption,
       videoUrl,
       thumbnailUrl: "",
     });
 
-    onVideoPublished();
+    console.log("Video created:", newVideo);
+    console.log(
+      "onVideoPublished type:",
+      typeof onVideoPublished
+    );
+
+    await onVideoPublished();
 
     setCaption("");
     setVideoUrl("");
+    setUploadProgress(0);
+
     alert("🎉 Reel published successfully!");
-
-
-    // We'll refresh the feed in the next step
   } catch (error: any) {
-  console.error("Publish Error:", error);
-  alert(error.message);
-}
+    console.error("Publish Error:", error);
+    alert(error.message);
+  }
 };
 
 
