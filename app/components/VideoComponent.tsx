@@ -10,7 +10,7 @@ import { apiClient } from "@/lib/api-client";
 export default function VideoComponent({ video }: { video: IVideo }) {
 
 const [shareMessage, setShareMessage] = useState("");
-
+  
 const [comments, setComments] = useState<IComment[]>(
   video.comments ?? []
 );
@@ -96,6 +96,7 @@ const handleComment = async () => {
     setIsCommenting(false);
   }
 };
+
 const handleShare = async () => {
   if (!video._id) return;
 
@@ -121,7 +122,6 @@ const handleShare = async () => {
     console.error("Failed to share reel:", error);
   }
 };
-
   return (
     <article
       className="
@@ -248,7 +248,7 @@ const handleShare = async () => {
   </span>
 </button>
 
-      <button
+       <button
   type="button"
   onClick={handleShare}
   className="
